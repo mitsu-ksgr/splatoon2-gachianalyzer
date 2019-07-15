@@ -2,6 +2,7 @@ import cv2
 import numpy as np
 import os
 
+TEMPLATE_RESOLUTION = [720, 1280]
 
 class TemplatePattern:
     class FileReadError(Exception):
@@ -77,6 +78,13 @@ class FrameAnalyzer:
         return np.all(frame[0:h, 0:w, :] == 0)
 
     def analyze(self, frame):
+        # テンプレート画像を 1280x720 をベースに作成してしまったので、frame が
+        # 1280x720 以外の解像度の場合、そのままだとテンプレートマッチが上手く
+        # 動作しない。そのため、frame のサイズを 1280x720 に変更して対応する.
+        if frame.shape[:2] != TEMPLATE_RESOLUTION:
+            frame = cv2.resize(frame,
+                dsize=(TEMPLATE_RESOLUTION[1], TEMPLATE_RESOLUTION[0]))
+
         if self.__is_match_loading(frame):
             return 'Loading'
 
